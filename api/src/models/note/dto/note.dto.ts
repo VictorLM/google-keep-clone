@@ -1,6 +1,6 @@
 import { IsNumber, IsString, Max, MaxLength, Min } from "class-validator";
 
-export class CreateNoteDTO {
+export class CreateAndUpdateNoteDTO {
   @IsString()
   @MaxLength(255)
   title!: string;
