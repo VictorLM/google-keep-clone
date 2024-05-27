@@ -31,7 +31,7 @@ export async function createNote(req: Request, res: Response) {
     const newNote = await Note.create(reqBody);
 
     // return created Note
-    res.json(newNote);
+    res.status(201).json(newNote);
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to create note."] });
@@ -42,6 +42,7 @@ export async function getNotes(req: Request, res: Response) {
   try {
     const notes = await Note.findAll({
       where: { archivedAt: null, deletedAt: null },
+      order: [["index", "ASC"]],
     });
     res.json(notes);
   } catch (error: any) {
@@ -120,6 +121,7 @@ export async function updateNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to update note."] });
@@ -138,6 +140,7 @@ export async function archiveNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to archive note."] });
@@ -156,6 +159,7 @@ export async function unarchiveNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to unarchive note."] });
@@ -174,6 +178,7 @@ export async function deleteNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to delete note."] });
@@ -192,6 +197,7 @@ export async function undeleteNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to undelete note."] });
@@ -210,6 +216,7 @@ export async function pinNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to pin note."] });
@@ -228,6 +235,7 @@ export async function unpinNoteByID(req: Request, res: Response) {
 
     // update Note on DB
     await note.save();
+    return res.status(200).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to unpin note."] });
