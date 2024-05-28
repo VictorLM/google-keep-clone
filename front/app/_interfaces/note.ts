@@ -6,9 +6,9 @@ export type UpdateNote = {
 
 export type Note = UpdateNote & {
   id: number;
-  pinnedAt: Date | null;
-  archivedAt: Date | null;
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  pinnedAt: string | null;
+  archivedAt: string | null;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 };

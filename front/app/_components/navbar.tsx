@@ -23,7 +23,7 @@ const NavBar = () => {
         <div className="d-flex">
           <button
             type="button"
-            className="btn btn-lg btn-outline-secondary p-0 px-1 border-0 me-2"
+            className="btn btn-lg btn-outline-secondary p-0 px-1 border-0 me-3"
           >
             <i className="bi bi-arrow-clockwise"></i>
           </button>

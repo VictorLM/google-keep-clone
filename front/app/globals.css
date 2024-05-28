@@ -1,6 +1,4 @@
-html,
-body,
-main {
+html {
   width: 100%;
   height: 100%;
 }
@@ -23,4 +21,12 @@ main {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.smaller {
+  font-size: 0.75em;
+}
+
+.me-05 {
+  margin-right: 0.15rem !important;
 }

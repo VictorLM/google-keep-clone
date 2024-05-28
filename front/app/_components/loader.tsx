@@ -1,12 +1,14 @@
-const Loader = () => {
+type Props = {
+  size: number;
+};
+
+const Loader = ({ size }: Props) => {
   return (
-    <div className="d-flex justify-content-center p-5">
-      <div
-        className="spinner-border text-secondary"
-        style={{ width: "4rem", height: "4rem" }}
-        role="status"
-      ></div>
-    </div>
+    <div
+      className="spinner-border text-secondary"
+      style={{ width: `${size}rem`, height: `${size}rem` }}
+      role="status"
+    ></div>
   );
 };
 
