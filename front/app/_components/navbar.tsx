@@ -1,14 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 
-const NavBar = () => {
+type Props = {
+  getUpdatedNotes(search?: string): Promise<void>;
+};
+
+const NavBar = ({ getUpdatedNotes }: Props) => {
   return (
     <nav
       className="navbar navbar-expand-lg bg-white fixed-top border-bottom "
       style={{ height: "70px" }}
     >
       <div className="container-xxl px-5 d-flex justify-content-between">
-        <Link className="navbar-brand" href="/">
+        <Link className="navbar-brand" href="/notes">
           <Image src="/images/logo.png" width={40} height={40} alt="logo" />
           <span className="ms-2">Keep Clone</span>
         </Link>
@@ -16,14 +20,15 @@ const NavBar = () => {
         <input
           type="text"
           className="form-control form-control-lg w-50 bg-light"
-          id="exampleFormControlInput1"
           placeholder="Pesquisar"
+          onChange={(e) => getUpdatedNotes(e.target.value)}
         />
 
         <div className="d-flex">
           <button
             type="button"
             className="btn btn-lg btn-outline-secondary p-0 px-1 border-0 me-3"
+            onClick={() => getUpdatedNotes()}
           >
             <i className="bi bi-arrow-clockwise"></i>
           </button>

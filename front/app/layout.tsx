@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import "./globals.css";
+
+import BootstrapClient from "@/app/_components/bootstrap";
+import { ToastContainer } from "react-toastify";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import BootstrapClient from "@/app/_components/bootstrap";
+import "react-toastify/dist/ReactToastify.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: process.env.BUSINESS_NAME,
@@ -17,7 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ToastContainer />
+      </body>
       <BootstrapClient />
     </html>
   );

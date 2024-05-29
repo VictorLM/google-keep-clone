@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import Loader from "@/app/_components/loader";
 import { createNote } from "@/app/_api/api";
 
 type Props = {
   firstIndex: number;
-  getUpdatedNotes(): Promise<void>;
+  getUpdatedNotes(search?: string): Promise<void>;
 };
 
 const NewNoteForm = ({ firstIndex, getUpdatedNotes }: Props) => {
@@ -26,8 +27,23 @@ const NewNoteForm = ({ firstIndex, getUpdatedNotes }: Props) => {
 
   async function create() {
     setLoading(true);
-    const newNote = { title, description, index: firstIndex };
-    await createNote(newNote);
+    const newNote = { title, description, index: firstIndex - 0.00001 };
+
+    try {
+      const response = await createNote(newNote);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação criada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     getUpdatedNotes();
     setLoading(false);
   }
@@ -61,6 +77,7 @@ const NewNoteForm = ({ firstIndex, getUpdatedNotes }: Props) => {
               placeholder="Título da anotação"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              maxLength={255}
             />
             {submitted && !title && (
               <div className="invalid-feedback">
@@ -80,6 +97,7 @@ const NewNoteForm = ({ firstIndex, getUpdatedNotes }: Props) => {
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              maxLength={1000}
             ></textarea>
             {submitted && !description && (
               <div className="invalid-feedback">

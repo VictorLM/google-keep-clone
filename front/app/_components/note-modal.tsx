@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { EditText, EditTextarea } from "react-edit-text";
 import { Note } from "@/app/_interfaces/note";
@@ -16,7 +17,7 @@ import {
 
 type Props = {
   note: Note;
-  getUpdatedNotes(): Promise<void>;
+  getUpdatedNotes(search?: string): Promise<void>;
 };
 
 const NoteModal = ({ note, getUpdatedNotes }: Props) => {
@@ -33,7 +34,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function update() {
     setLoading(true);
     const updatedNote = { ...note, title, description };
-    await updateNote(note.id, updatedNote);
+
+    try {
+      const response = await updateNote(note.id, updatedNote);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação atualizada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -41,7 +57,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function pin() {
     setLoading(true);
     note.pinnedAt = new Date().toISOString().split("T")[0];
-    await pinNote(note.id);
+
+    try {
+      const response = await pinNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação fixada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -49,7 +80,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function unpin() {
     setLoading(true);
     note.pinnedAt = null;
-    await unpinNote(note.id);
+
+    try {
+      const response = await unpinNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação desfixada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -57,7 +103,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function archive() {
     setLoading(true);
     note.archivedAt = new Date().toISOString().split("T")[0];
-    await archiveNote(note.id);
+
+    try {
+      const response = await archiveNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação arquivada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -65,7 +126,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function unarchive() {
     setLoading(true);
     note.archivedAt = null;
-    await unpinNote(note.id);
+
+    try {
+      const response = await unpinNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação desarquivada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -73,7 +149,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function remove() {
     setLoading(true);
     note.deletedAt = new Date().toISOString().split("T")[0];
-    await deleteNote(note.id);
+
+    try {
+      const response = await deleteNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação excluída com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -81,7 +172,22 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
   async function undelete() {
     setLoading(true);
     note.deletedAt = null;
-    await unpinNote(note.id);
+
+    try {
+      const response = await unpinNote(note.id);
+
+      if (response?.status >= 200 && response?.status < 300) {
+        toast.success("Anotação recuperada com sucesso!");
+      } else if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      //
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
+
     setLoading(false);
     getUpdatedNotes();
   }
@@ -132,27 +238,7 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
             ) : (
               <>
                 <div>
-                  {/* pin / unpin */}
-                  {note.pinnedAt ? (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => unpin()}
-                    >
-                      <i className="bi bi-x-circle me-1"></i>
-                      Desfixar
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => pin()}
-                    >
-                      <i className="bi bi-pin me-1"></i>
-                      Fixar
-                    </button>
-                  )}
-                  {/* archive / unarchive */}
+                  {/* If note deleted */}
                   {note.archivedAt ? (
                     <button
                       type="button"
@@ -162,18 +248,7 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
                       <i className="bi bi-box-arrow-up me-1"></i>
                       Desarquivar
                     </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-secondary me-2"
-                      onClick={() => archive()}
-                    >
-                      <i className="bi bi-archive me-1"></i>
-                      Arquivar
-                    </button>
-                  )}
-                  {/* delete / undelete */}
-                  {note.deletedAt ? (
+                  ) : note.deletedAt ? (
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-success"
@@ -182,15 +257,64 @@ const NoteModal = ({ note, getUpdatedNotes }: Props) => {
                       <i className="bi bi-arrow-counterclockwise me-1"></i>
                       Restaurar
                     </button>
+                  ) : note.pinnedAt ? (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => unpin()}
+                      >
+                        <i className="bi bi-x-circle me-1"></i>
+                        Desfixar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary me-2"
+                        onClick={() => archive()}
+                      >
+                        <i className="bi bi-archive me-1"></i>
+                        Arquivar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => remove()}
+                      >
+                        <i className="bi bi-trash me-1"></i>
+                        Excluir
+                      </button>
+                    </>
                   ) : (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => remove()}
-                    >
-                      <i className="bi bi-trash me-1"></i>
-                      Excluir
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => pin()}
+                      >
+                        <i className="bi bi-pin me-1"></i>
+                        Fixar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary me-2"
+                        onClick={() => archive()}
+                      >
+                        <i className="bi bi-archive me-1"></i>
+                        Arquivar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => remove()}
+                      >
+                        <i className="bi bi-trash me-1"></i>
+                        Excluir
+                      </button>
+                    </>
                   )}
                 </div>
                 <button

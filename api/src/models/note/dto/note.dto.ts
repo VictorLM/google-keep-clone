@@ -1,4 +1,11 @@
-import { IsNumber, IsString, Max, MaxLength, Min } from "class-validator";
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from "class-validator";
 
 export class CreateAndUpdateNoteDTO {
   @IsString()
@@ -13,4 +20,11 @@ export class CreateAndUpdateNoteDTO {
   @Min(0.0000000000000000000000000000001)
   @Max(100000000000000)
   index!: number;
+}
+
+export class SearchNoteDTO {
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  search: string;
 }

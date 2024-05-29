@@ -20,3 +20,6 @@ Archive list
 Trash list
 force cads not same height
 login page
+
+Tests
+dockerize with compose (DB)
