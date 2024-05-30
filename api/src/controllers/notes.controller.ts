@@ -36,7 +36,7 @@ export async function createNote(req: Request, res: Response) {
     const newNote = await Note.create(reqBody);
 
     // return created Note
-    res.status(201).json(newNote);
+    return res.status(201).json(newNote).send();
   } catch (error) {
     console.log(error);
     res.status(500).json({ messages: ["Failed to create note."] });
@@ -69,6 +69,64 @@ export async function getNotes(req: Request, res: Response) {
         where: {
           archivedAt: null,
           deletedAt: null,
+          pinnedAt: null,
+          [Op.or]: [
+            {
+              title: {
+                [Op.iLike]: `%${reqQuery.search}%`,
+              },
+            },
+            {
+              description: {
+                [Op.iLike]: `%${reqQuery.search}%`,
+              },
+            },
+          ],
+        },
+        order: [["index", "ASC"]],
+      });
+    } else {
+      notes = await Note.findAll({
+        where: { archivedAt: null, deletedAt: null, pinnedAt: null },
+        order: [["index", "ASC"]],
+      });
+    }
+
+    res.json(notes);
+  } catch (error: any) {
+    res.status(500).json({ messages: [error.message] });
+  }
+}
+
+export async function getPinnedNotes(req: Request, res: Response) {
+  const reqQuery = new SearchNoteDTO();
+
+  // find for search term
+  if (req.query.search) {
+    // validating request body
+    reqQuery.search = req.query.search as string;
+    try {
+      await validateOrReject(reqQuery);
+    } catch (errors: any) {
+      return res.status(400).send({
+        messages: errors.flatMap((error: any) =>
+          Object.values(error.constraints)
+        ),
+      });
+    }
+  }
+
+  try {
+    let notes: Note[] = [];
+
+    if (reqQuery.search) {
+      notes = await Note.findAll({
+        where: {
+          archivedAt: null,
+          deletedAt: null,
+          pinnedAt: {
+            [Op.not]: null,
+          },
           [Op.or]: [
             {
               title: {
@@ -89,7 +147,13 @@ export async function getNotes(req: Request, res: Response) {
       });
     } else {
       notes = await Note.findAll({
-        where: { archivedAt: null, deletedAt: null },
+        where: {
+          archivedAt: null,
+          deletedAt: null,
+          pinnedAt: {
+            [Op.not]: null,
+          },
+        },
         order: [
           ["index", "ASC"],
           ["pinnedAt", "DESC"],

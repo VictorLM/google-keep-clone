@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Masonry } from "react-masonry";
 import { toast } from "react-toastify";
+import { arrayMoveImmutable } from "array-move";
 import SortableList, { SortableItem } from "react-easy-sort";
 
 import NavBar from "@/app/_components/navbar";
@@ -11,134 +12,144 @@ import Loader from "@/app/_components/loader";
 import NoteModal from "@/app/_components/note-modal";
 import NewNoteForm from "@/app/_components/new-note-form";
 
-import { getNotes, updateNote } from "@/app/_api/api";
+import { getNotes, getPinnedNotes, updateNote } from "@/app/_api/api";
 import { Note } from "@/app/_interfaces/note";
 
 export default function Notes() {
   //
   const [loading, setLoading] = useState<Boolean>(true);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [pinnedNotes, setPinnedNotes] = useState<Note[]>([]);
+  const [otherNotes, setOtherNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note>();
   //
   const modalButtonRef = useRef(null);
 
   useEffect(() => {
-    getData("", true);
+    getData();
   }, []);
 
-  async function getData(search?: string, showLoader?: boolean) {
-    if (showLoader) setLoading(true);
+  async function getData(search?: string) {
+    setLoading(true);
 
     try {
-      const response = await getNotes(search);
+      const responsePinnedNotes = await getPinnedNotes(search);
+      const responseOtherNotes = await getNotes(search);
 
-      if (response?.messages?.length) {
-        response.messages.forEach((message: string) => {
+      if (responsePinnedNotes?.messages?.length) {
+        responsePinnedNotes.messages.forEach((message: string) => {
           toast.error(message);
         });
       }
 
-      setNotes(response || []);
-    } catch (error) {
-      toast.error("Erro ao processar dados da página!");
-    }
-
-    if (showLoader) setLoading(false);
-  }
-
-  async function onSortEnd(oldIndex: number, newIndex: number) {
-    // find new Note index
-    let newNoteIndex = 1;
-    const movedNote: Note = {
-      ...notes.filter((note) => !note.pinnedAt)[oldIndex],
-    };
-    //
-    if (newIndex === 0) {
-      newNoteIndex = notes.filter((note) => !note.pinnedAt)[0].index - 0.00001;
-    } else {
-      const aboveIndex =
-        newIndex === 0
-          ? 0
-          : notes.filter((note) => !note.pinnedAt)[newIndex - 1].index;
-      //
-      const bellowIndex =
-        newIndex + 1 >= notes.filter((note) => note.pinnedAt).length
-          ? notes.filter((note) => !note.pinnedAt)[
-              notes.filter((note) => !note.pinnedAt).length - 1
-            ].index
-          : notes.filter((note) => !note.pinnedAt)[newIndex + 1].index;
-      //
-      newNoteIndex = (aboveIndex + bellowIndex) / 2;
-    }
-    movedNote.index = newNoteIndex;
-    // send update to API
-
-    try {
-      const response = await updateNote(movedNote.id, movedNote);
-
-      if (response?.messages?.length) {
-        response.messages.forEach((message: string) => {
+      if (responseOtherNotes?.messages?.length) {
+        responseOtherNotes.messages.forEach((message: string) => {
           toast.error(message);
         });
       }
-      //
+
+      setPinnedNotes(responsePinnedNotes || []);
+      setOtherNotes(responseOtherNotes || []);
     } catch (error) {
       toast.error("Erro ao processar dados da página!");
     }
 
-    // update notes
-    getData();
+    setLoading(false);
   }
 
-  async function onSortEndPinned(oldIndex: number, newIndex: number) {
-    // filter only pinned notes
-    const pinnedNotesOnly = notes.filter((note) => note.pinnedAt);
+  async function onSortPinnedNotesEnd(oldIndex: number, newIndex: number) {
+    // update local array
+    setPinnedNotes((array) => arrayMoveImmutable(array, oldIndex, newIndex));
     // to store new Note index
     let newNoteIndex = 1;
     // get sorted note
-    const sortedNote: Note = { ...pinnedNotesOnly[oldIndex] };
-    //
+    const sortedNote: Note = { ...pinnedNotes[oldIndex] };
+    // find new Index
     if (newIndex === 0) {
       //
-      newNoteIndex = pinnedNotesOnly[0].index - 0.00001;
+      newNoteIndex = pinnedNotes[0].index - 0.00001;
       //
-    } else if (newIndex + 1 === pinnedNotesOnly.length) {
+    } else if (newIndex + 1 === pinnedNotes.length) {
       //
-      newNoteIndex =
-        pinnedNotesOnly[pinnedNotesOnly.length - 1].index + 0.00001;
+      newNoteIndex = pinnedNotes[pinnedNotes.length - 1].index + 0.00001;
       //
     } else if (oldIndex === 0) {
       //
-      newNoteIndex = pinnedNotesOnly[newIndex].index + 0.00001;
+      newNoteIndex = pinnedNotes[newIndex].index + 0.00001;
       //
-    } else if (oldIndex + 1 === pinnedNotesOnly.length) {
+    } else if (oldIndex + 1 === pinnedNotes.length) {
       //
-      newNoteIndex = pinnedNotesOnly[newIndex].index - 0.00001;
+      newNoteIndex = pinnedNotes[newIndex].index - 0.00001;
       //
     } else {
-      const aboveIndex = pinnedNotesOnly[newIndex - 1].index;
-      const bellowIndex = pinnedNotesOnly[newIndex].index;
+      const aboveIndex = pinnedNotes[newIndex - 1].index;
+      const bellowIndex = pinnedNotes[newIndex].index;
       //
       newNoteIndex = (aboveIndex + bellowIndex) / 2;
     }
+    //
     sortedNote.index = newNoteIndex;
-
-    // send update to API
+    //
     try {
+      // send update to API
       const response = await updateNote(sortedNote.id, sortedNote);
-
+      // if API errors
       if (response?.messages?.length) {
         response.messages.forEach((message: string) => {
           toast.error(message);
         });
       }
-      //
+      // if error on request
     } catch (error) {
       toast.error("Erro ao processar dados da página!");
     }
+  }
 
-    // update notes
-    getData();
+  async function onSortOtherNotesEnd(oldIndex: number, newIndex: number) {
+    // update local array
+    setOtherNotes((array) => arrayMoveImmutable(array, oldIndex, newIndex));
+    // to store new Note index
+    let newNoteIndex = 1;
+    // get sorted note
+    const sortedNote: Note = { ...otherNotes[oldIndex] };
+    // find new Index
+    if (newIndex === 0) {
+      //
+      newNoteIndex = otherNotes[0].index - 0.00001;
+      //
+    } else if (newIndex + 1 === otherNotes.length) {
+      //
+      newNoteIndex = otherNotes[otherNotes.length - 1].index + 0.00001;
+      //
+    } else if (oldIndex === 0) {
+      //
+      newNoteIndex = otherNotes[newIndex].index + 0.00001;
+      //
+    } else if (oldIndex + 1 === otherNotes.length) {
+      //
+      newNoteIndex = otherNotes[newIndex].index - 0.00001;
+      //
+    } else {
+      const aboveIndex = otherNotes[newIndex - 1].index;
+      const bellowIndex = otherNotes[newIndex].index;
+      //
+      newNoteIndex = (aboveIndex + bellowIndex) / 2;
+    }
+    //
+    sortedNote.index = newNoteIndex;
+    //
+    try {
+      // send update to API
+      const response = await updateNote(sortedNote.id, sortedNote);
+      // if API errors
+      if (response?.messages?.length) {
+        response.messages.forEach((message: string) => {
+          toast.error(message);
+        });
+      }
+      // if error on request
+    } catch (error) {
+      toast.error("Erro ao processar dados da página!");
+    }
   }
 
   // listen to note selection/click/selectedNote change
@@ -162,7 +173,8 @@ export default function Notes() {
               <div className="d-flex justify-content-center p-5 w-100">
                 <Loader size={4} />
               </div>
-            ) : !notes || !notes.length ? (
+            ) : (!pinnedNotes || !pinnedNotes.length) &&
+              (!otherNotes || !otherNotes.length) ? (
               <>
                 <NewNoteForm firstIndex={1} getUpdatedNotes={getData} />
                 <h4 className="text-muted fst-italic fw-light text-center p-5">
@@ -172,7 +184,7 @@ export default function Notes() {
             ) : (
               <>
                 <NewNoteForm
-                  firstIndex={notes[0].index}
+                  firstIndex={otherNotes[0]?.index}
                   getUpdatedNotes={getData}
                 />
 
@@ -181,43 +193,41 @@ export default function Notes() {
                 </div>
                 {/* Pinned notes */}
 
-                {!notes.filter((note) => note.pinnedAt).length ? (
+                {!pinnedNotes.length ? (
                   <h5 className="text-muted fst-italic fw-light text-center p-2">
                     Nenhuma anotação fixada!
                   </h5>
                 ) : (
                   <SortableList
-                    onSortEnd={onSortEndPinned}
+                    onSortEnd={onSortPinnedNotesEnd}
                     draggedItemClassName="dragged"
                   >
                     <Masonry>
-                      {notes
-                        .filter((note) => note.pinnedAt)
-                        .map((note) => (
-                          <div
-                            key={note.id}
-                            className="p-2"
-                            onClick={() => setSelectedNote(note)}
-                            style={{
-                              width: "33.333%",
-                            }}
-                          >
-                            <SortableItem>
-                              <div className="note shadow border rounded p-3">
-                                <h5>
-                                  {note.title.length > 50
-                                    ? note.title.substring(0, 50) + "..."
-                                    : note.title}
-                                </h5>
-                                <p className="small mb-0">
-                                  {note.description.length > 255
-                                    ? note.description.substring(0, 255) + "..."
-                                    : note.description}
-                                </p>
-                              </div>
-                            </SortableItem>
-                          </div>
-                        ))}
+                      {pinnedNotes.map((note) => (
+                        <div
+                          key={note.id}
+                          className="p-2"
+                          onClick={() => setSelectedNote(note)}
+                          style={{
+                            width: "33.333%",
+                          }}
+                        >
+                          <SortableItem>
+                            <div className="note shadow border rounded p-3">
+                              <h5>
+                                {note.title.length > 50
+                                  ? note.title.substring(0, 50) + "..."
+                                  : note.title}
+                              </h5>
+                              <p className="small mb-0">
+                                {note.description.length > 255
+                                  ? note.description.substring(0, 255) + "..."
+                                  : note.description}
+                              </p>
+                            </div>
+                          </SortableItem>
+                        </div>
+                      ))}
                     </Masonry>
                   </SortableList>
                 )}
@@ -226,43 +236,41 @@ export default function Notes() {
                   <span className="fw-medium text-muted small">OUTRAS</span>
                 </div>
 
-                {!notes.filter((note) => !note.pinnedAt).length ? (
+                {!otherNotes.length ? (
                   <h5 className="text-muted fst-italic fw-light text-center p-2">
-                    Nenhuma anotação fixada encontrada!
+                    Nenhuma anotação encontrada!
                   </h5>
                 ) : (
                   <SortableList
-                    onSortEnd={onSortEnd}
+                    onSortEnd={onSortOtherNotesEnd}
                     draggedItemClassName="dragged"
                   >
                     <Masonry>
-                      {notes
-                        .filter((note) => !note.pinnedAt)
-                        .map((note) => (
-                          <div
-                            key={note.id}
-                            className="p-2"
-                            onClick={() => setSelectedNote(note)}
-                            style={{
-                              width: "33.333%",
-                            }}
-                          >
-                            <SortableItem>
-                              <div className="note shadow border rounded p-3">
-                                <h5>
-                                  {note.title.length > 50
-                                    ? note.title.substring(0, 50) + "..."
-                                    : note.title}
-                                </h5>
-                                <p className="small mb-0">
-                                  {note.description.length > 255
-                                    ? note.description.substring(0, 255) + "..."
-                                    : note.description}
-                                </p>
-                              </div>
-                            </SortableItem>
-                          </div>
-                        ))}
+                      {otherNotes.map((note) => (
+                        <div
+                          key={note.id}
+                          className="p-2"
+                          onClick={() => setSelectedNote(note)}
+                          style={{
+                            width: "33.333%",
+                          }}
+                        >
+                          <SortableItem>
+                            <div className="note shadow border rounded p-3">
+                              <h5>
+                                {note.title.length > 50
+                                  ? note.title.substring(0, 50) + "..."
+                                  : note.title}
+                              </h5>
+                              <p className="small mb-0">
+                                {note.description.length > 255
+                                  ? note.description.substring(0, 255) + "..."
+                                  : note.description}
+                              </p>
+                            </div>
+                          </SortableItem>
+                        </div>
+                      ))}
                     </Masonry>
                   </SortableList>
                 )}

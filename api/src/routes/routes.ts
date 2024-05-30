@@ -7,6 +7,7 @@ import {
   getDeletedNotes,
   getNoteByID,
   getNotes,
+  getPinnedNotes,
   pinNoteByID,
   unarchiveNoteByID,
   undeleteNoteByID,
@@ -19,8 +20,11 @@ const router = express.Router();
 // Create new Note
 router.post("/", createNote);
 
-// Get all Notes - Note deleted or archived
+// Get all Notes - Note deleted, archived or pinned
 router.get("/", getNotes);
+
+// Get all pinned Notes
+router.get("/pinned", getPinnedNotes);
 
 // Get all archived Notes
 router.get("/archived", getArchivedNotes);

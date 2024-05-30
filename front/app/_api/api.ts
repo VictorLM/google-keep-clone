@@ -1,9 +1,24 @@
-import { Note, UpdateNote } from "@/app/_interfaces/note";
+import { UpdateNote } from "@/app/_interfaces/note";
 
 const url = process.env.API_URL || "http://localhost:8000";
 
 export async function getNotes(search?: string): Promise<any> {
   const parsedURL = search ? `${url}/notes?search=${search}` : `${url}/notes`;
+
+  const data = await fetch(parsedURL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json());
+
+  return data;
+}
+
+export async function getPinnedNotes(search?: string): Promise<any> {
+  const parsedURL = search
+    ? `${url}/notes/pinned?search=${search}`
+    : `${url}/notes/pinned`;
 
   const data = await fetch(parsedURL, {
     method: "GET",

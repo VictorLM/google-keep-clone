@@ -32,19 +32,24 @@ const NewNoteForm = ({ firstIndex, getUpdatedNotes }: Props) => {
     try {
       const response = await createNote(newNote);
 
-      if (response?.status >= 200 && response?.status < 300) {
+      console.log(response);
+
+      if (response?.id) {
         toast.success("Anotação criada com sucesso!");
+        setFormSelected(false);
+        getUpdatedNotes();
       } else if (response?.messages?.length) {
         response.messages.forEach((message: string) => {
           toast.error(message);
         });
+      } else {
+        toast.error("Erro ao criar nova anotação!");
       }
       //
     } catch (error) {
-      toast.error("Erro ao processar dados da página!");
+      toast.error("Erro ao criar nova anotação!");
     }
 
-    getUpdatedNotes();
     setLoading(false);
   }
 

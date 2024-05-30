@@ -1,25 +1,62 @@
-// TODO
-Clean arquitecture, separate into services/controllers
-Selequize migrations
-Auth
-etc
-Documentation with Swagger
-pagination/infinity scroll
+# Google Keep Clone
 
-Express.js (Three Tier Architecture - Without Service/Repository layer)
+### What is?
 
-FROM: API calls error handling
+Google Keep app clone.
 
-Bootstrap (CSS)
+* Notes registration and management
+* Notes create, edit, pin, unpin, archive, unachive, delete & undelete
+* Notes reorder
+* Notes search
 
-TODOs:
+### Made with - API
+* Typescript
+* Express.js (Node API, Three Tier Architecture, without Service/Repository layer)
+* Class Validator (Request validation)
+* Sequelize (ORM)
+* Postgres Database
 
-search
-refresh nav btn
-Archive list
-Trash list
-force cads not same height
-login page
+### Made with - Front
+* Typescript
+* Next.js (React framework)
+* Bootstrap (CSS)
+* Bootstrap Icons (Icons)
+* React Toastify (Notifications)
+* React Masonry (Masonry layout)
+* React Edit Text (Live edit)
+* React Easy Sort (Drag and Drop)
 
-Tests
-dockerize with compose (DB)
+### TODOs
+- [ ] Authentication
+- [ ] Responsive design
+- [ ] Pagination/infinity scroll
+- [ ] Database migrations
+- [ ] Tests
+
+________________________________________________
+
+### Step-by-step setup
+
+**Requires Docker & Docker Compose.**
+
+Clone the repo:
+```sh
+git clone https://github.com/VictorLM/google-keep-clone.git
+```
+
+Get into the project folder:
+```sh
+cd google-keep-clone
+```
+
+Initialize the project Docker containers:
+```sh
+docker compose up -d
+```
+
+Access the project on:
+[http://localhost:3000](http://localhost:3000)
+
+### Preview
+
+<img src="https://i.imgur.com/s1GuQcU.gif" alt="Preview" />
