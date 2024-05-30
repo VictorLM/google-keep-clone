@@ -59,4 +59,16 @@ Access the project on:
 
 ### Preview
 
-<img src="https://i.imgur.com/s1GuQcU.gif" alt="Preview" />
+[Video with app preview](https://i.imgur.com/s1GuQcU.gif).
+
+### Autor
+
+<p>
+  Made with ❤️ by <b>Victor Meireles</b> 👋🏽 Get in touch!
+  <br/>
+  Feito com ❤️ por <b>Victor Meireles</b> 👋🏽 Entre em contato!
+</p>
+
+[![Github Badge](https://img.shields.io/badge/-Github-000?style=flat-square&logo=Github&logoColor=white&link=https://github.com/VictorLM)](https://github.com/VictorLM)
+[![Linkedin Badge](https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/victorlucasmeireles/)](https://www.linkedin.com/in/victorlucasmeireles/)
+[![Gmail Badge](https://img.shields.io/badge/-Email-c14438?style=flat-square&logo=Gmail&logoColor=white&link=mailto:victor.meireles.dev@gmail.com)](mailto:victor.meireles.dev@gmail.com)
